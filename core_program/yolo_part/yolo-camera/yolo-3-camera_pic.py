@@ -34,7 +34,7 @@ Reading stream video from camera
 
 # Defining 'VideoCapture' object
 # and reading stream video from camera
-camera = cv2.VideoCapture(0)
+camera = cv2.imread('/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/test1/depth.png' , cv2.IMREAD_UNCHANGED)
 
 # Preparing variables for spatial dimensions of the frames
 h, w = None, None
@@ -56,8 +56,8 @@ Loading YOLO v3 network
 # r'yolo-coco-data\coco.names'
 # or:
 # 'yolo-coco-data\\coco.names'
-path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/"
-with open(path+'test1/rgb01.names') as f:
+path = "/home/disorn/code_save/python/python-yolo/"
+with open(path+'test1/classes.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
@@ -75,8 +75,8 @@ with open(path+'test1/rgb01.names') as f:
 # or:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
-network = cv2.dnn.readNetFromDarknet(path+'test1/rgb01.cfg',
-                                     path+'test1/rgb01_900.weights')
+network = cv2.dnn.readNetFromDarknet('/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/test1/test1.cfg',
+                                     '/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/test1/test1_900.weights')
 
 # Getting list with names of all layers from YOLO v3 network
 layers_names_all = network.getLayerNames()
@@ -125,7 +125,7 @@ Reading frames in the loop
 # Defining loop for catching frames
 while True:
     # Capturing frame-by-frame from camera
-    _, frame = camera.read()
+    frame = np.uint8(camera)
 
     # Getting spatial dimensions of the frame
     # we do it only once from the very beginning
@@ -146,7 +146,7 @@ while True:
     # E.G.:
     # blob = cv2.dnn.blobFromImage(image, scalefactor=1.0, size, mean, swapRB=True)
     blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416),
-                                 swapRB=True, crop=False)
+                                 swapRB=False, crop=False)
 
     """
     End of:
@@ -162,7 +162,9 @@ while True:
     # Calculating at the same time, needed time for forward pass
     network.setInput(blob)  # setting blob as input to the network
     start = time.time()
+    #print(labels)
     output_from_network = network.forward(layers_names_output)
+    #print(output_from_network)
     end = time.time()
 
     # Showing spent time for single current frame
@@ -190,6 +192,7 @@ while True:
         for detected_objects in result:
             # Getting 80 classes' probabilities for current detected object
             scores = detected_objects[5:]
+            #print(detected_objects)
             # Getting index of the class with the maximum value of probability
             class_current = np.argmax(scores)
             # Getting value of probability for defined class
@@ -200,7 +203,7 @@ while True:
             # # bounding box coordinates and rest 80 with probabilities
             # # for every class
             # print(detected_objects.shape)  # (85,)
-
+            #print(confidence_current)
             # Eliminating weak predictions with minimum probability
             if confidence_current > probability_minimum:
                 # Scaling bounding box coordinates to the initial frame size
@@ -274,7 +277,7 @@ while True:
             # print(colour_box_current)  # [172 , 10, 127]
 
             # Drawing bounding box on the original current frame
-            cv2.rectangle(frame, (x_min, y_min),
+            cv2.rectangle(frame[:,:,0:3], (x_min, y_min),
                           (x_min + box_width, y_min + box_height),
                           colour_box_current, 2)
 
@@ -283,7 +286,7 @@ while True:
                                                    confidences[i])
 
             # Putting text with label and confidence on the original image
-            cv2.putText(frame, text_box_current, (x_min, y_min - 5),
+            cv2.putText(frame[:,:,0:3], text_box_current, (x_min, y_min - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, colour_box_current, 2)
 
     """
@@ -303,8 +306,8 @@ while True:
     # And specifying that window is resizable
     cv2.namedWindow('YOLO v3 Real Time Detections', cv2.WINDOW_NORMAL)
     # Pay attention! 'cv2.imshow' takes images in BGR format
-    cv2.imshow('YOLO v3 Real Time Detections', frame)
-
+    cv2.imshow('YOLO v3 Real Time Detections', frame[:,:,0:3])
+    #print(frame.shape)
     # Breaking the loop if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
