@@ -98,7 +98,7 @@ with open(path+'test1/rgb01.names') as f:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
 network = cv2.dnn.readNetFromDarknet(path+'test1/rgb01.cfg',
-                                     path+'test1/rgb01_900.weights')
+                                     path+'test1/rgb01_10000.weights')
 
 network.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 network.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
