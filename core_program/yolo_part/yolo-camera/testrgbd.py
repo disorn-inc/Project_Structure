@@ -89,8 +89,8 @@ Loading YOLO v3 network
 # r'yolo-coco-data\coco.names'
 # or:
 # 'yolo-coco-data\\coco.names'
-path = "/home/kittipong/Dataset_test/RGBD"
-with open(path+'/classes.names') as f:
+path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
+with open(path+'test1/rgb01.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
@@ -108,8 +108,8 @@ with open(path+'/classes.names') as f:
 # or:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
-network = cv2.dnn.readNetFromDarknet(path+'/rgbd01.cfg',
-                                     path+'/rgbd01.backup')
+network = cv2.dnn.readNetFromDarknet(path+'test1/rgbd02.cfg',
+                                     path+'test1/rgbd02_24000.weights')
 
 network.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 network.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)

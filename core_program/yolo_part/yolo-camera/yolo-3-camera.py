@@ -56,8 +56,8 @@ Loading YOLO v3 network
 # r'yolo-coco-data\coco.names'
 # or:
 # 'yolo-coco-data\\coco.names'
-path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/"
-with open(path+'test1/rgb01.names') as f:
+path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
+with open(path+'classes_rgbd.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
