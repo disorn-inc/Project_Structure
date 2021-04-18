@@ -20,7 +20,7 @@ print("Depth Scale is: " , depth_scale)
 
 # We will be removing the background of objects more than
 #  clipping_distance_in_meters meters away
-clipping_distance_in_meters = 0.5 #1 meter
+clipping_distance_in_meters = 0.445 #1 meter
 clipping_distance = clipping_distance_in_meters / depth_scale
 
 # Create an align object
@@ -60,10 +60,11 @@ try:
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         colorized_depth = np.asanyarray(colorizer.colorize(aligned_depth_frame).get_data())
         depth_bg_remove = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, colorized_depth)
+        raw_depth_bg_remove = np.where((depth_image > clipping_distance) | (depth_image <= 0), grey_color, depth_image)
         images = np.hstack((bg_removed, depth_bg_remove))
         cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
         cv2.imshow('Align Example', images)
-        #cv2.imshow('coler_depth',colorized_depth)
+        cv2.imshow('coler_depth',depth_image)
         key = cv2.waitKey(1)
         # Press esc or 'q' to close the image window
         if key & 0xFF == ord('q') or key == 27:
