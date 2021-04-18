@@ -16,7 +16,7 @@ import json
 jsonObj = json.load(open("custom.json"))
 json_string= str(jsonObj).replace("'", '\"')
 #print(json_string)
-path = '/home/kittipong/Dataset_test'
+path = '/home/disorn/Dataset_test'
 # Create a pipeline
 pipeline = rs.pipeline()
 i = 0
@@ -45,8 +45,9 @@ depth_scale = depth_sensor.get_depth_scale()
 print("Depth Scale is: " , depth_scale)
 
 # We will be removing the background of objects more than
-#  clipping_distance_in_meters meters away
-clipping_distance_in_meters = 0.7 #1 meter
+#  clipping_distance_in_meters mete
+# rs away
+clipping_distance_in_meters = 0.45 #1 meter
 clipping_distance = clipping_distance_in_meters / depth_scale
 
 # Create an align object
@@ -72,7 +73,7 @@ try:
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
             continue
-        colorizer = rs.colorizer(2)
+        #colorizer = rs.colorizer(0)
         depth_image_raw = np.asanyarray(aligned_depth_frame.get_data())
         
         
@@ -93,19 +94,24 @@ try:
         depth_filter = hole_filling.process(depth_filter)
         
         
+        colorizer = rs.colorizer()
+        depth_image_pre = np.asanyarray(aligned_depth_frame.get_data())
         depth_image = np.asanyarray(colorizer.colorize(aligned_depth_frame).get_data())
         color_image = np.asanyarray(color_frame.get_data())
+        
         
         # Remove background - Set pixels further than clipping_distance to grey
         grey_color = 153
         #depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
-        depth_image_3d = depth_image
+        depth_image_3d = np.dstack((depth_image_pre,depth_image_pre,depth_image_pre))
         bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
+        depth_bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, depth_image)
+        raw_depth_bg_remove = np.where((depth_image_raw > clipping_distance) | (depth_image_raw <= 0), grey_color, depth_image_raw)
         depth_image_raw_8 = (depth_image_raw/6).astype('uint8')
         # Render images
         #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         #depth_colormap = np.asanyarray(colorizer.colorize(depth_image).get_data())
-        images = np.hstack((color_image, depth_image))
+        images = np.hstack((color_image, depth_bg_removed))
         test = np.dstack((color_image,depth_image_raw_8))
         print(np.min(depth_image_raw))
         cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
