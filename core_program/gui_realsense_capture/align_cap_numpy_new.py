@@ -125,7 +125,7 @@ try:
         test = np.dstack((color_image,depth_image_raw_8))
         test1 = np.dstack((color_image,depth_image_diff_8bit))
         test2 = np.dstack((color_image,raw_depth_bg_remove.astype('uint8')))
-        print(np.min(depth_image_8bit))
+        #print(np.min(depth_image_8bit))
         cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
         cv2.imshow('Align Example',cv2.resize(images3,(960,480)))
         key = cv2.waitKey(1)
