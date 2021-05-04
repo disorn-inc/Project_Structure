@@ -96,6 +96,7 @@ try:
         
         
         colorizer = rs.colorizer(2)
+        depth_image_fill = np.asanyarray(depth_filter.get_data())
         depth_image_pre = np.asanyarray(aligned_depth_frame.get_data())
         depth_image = np.asanyarray(colorizer.colorize(aligned_depth_frame).get_data())
         color_image = np.asanyarray(color_frame.get_data())
@@ -104,6 +105,7 @@ try:
         # Remove background - Set pixels further than clipping_distance to grey
         grey_color = 153
         #depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
+        depth_image_fill_8bit  = depth_image_fill.astype("uint8")
         depth_image_3d = np.dstack((depth_image_pre,depth_image_pre,depth_image_pre))
         bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
         depth_bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, depth_image)

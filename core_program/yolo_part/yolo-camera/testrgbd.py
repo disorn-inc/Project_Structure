@@ -89,8 +89,8 @@ Loading YOLO v3 network
 # r'yolo-coco-data\coco.names'
 # or:
 # 'yolo-coco-data\\coco.names'
-path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
-with open(path+'test1/rgb01.names') as f:
+path = "/home/kittipong/pj_test"
+with open(path+'/classes.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
@@ -108,8 +108,8 @@ with open(path+'test1/rgb01.names') as f:
 # or:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
-network = cv2.dnn.readNetFromDarknet(path+'test1/rgbd02.cfg',
-                                     path+'test1/rgbd02_24000.weights')
+network = cv2.dnn.readNetFromDarknet(path+'/rgbd_rev02.cfg',
+                                     path+'/rgbd_rev02_final.weights')
 
 network.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 network.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -190,10 +190,11 @@ while True:
     depth_filter = temporal.process(depth_filter)
     depth_filter = disparity_to_depth.process(depth_filter)
     depth_filter = hole_filling.process(depth_filter)
+    depth_raw =  np.asanyarray(aligned_depth_frame.get_data())
     depth_fill_raw=np.asanyarray(depth_filter.get_data())
     color_image = np.asanyarray(color_frame.get_data())
-    depth_image_raw_8 = (depth_fill_raw/6).astype('uint8')
-    npp=np.zeros((480,640)).astype('uint8')
+    depth_image_raw_8 = (depth_raw).astype('uint8')
+
     test = np.dstack((color_image,depth_image_raw_8))
     # Getting spatial dimensions of the frame
     # we do it only once from the very beginning
