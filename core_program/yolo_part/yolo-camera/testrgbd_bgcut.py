@@ -54,7 +54,7 @@ print("Depth Scale is: " , depth_scale)
 
 # We will be removing the background of objects more than
 #  clipping_distance_in_meters meters away
-clipping_distance_in_meters = 0.2 #1 meter
+clipping_distance_in_meters = 0.38 #1 meter
 clipping_distance = clipping_distance_in_meters / depth_scale
 align_to = rs.stream.color
 align = rs.align(align_to)
@@ -108,8 +108,8 @@ with open(path+'/classes.names') as f:
 # or:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
-network = cv2.dnn.readNetFromDarknet(path+'/rgbd_rev02.cfg',
-                                     path+'/rgbd_rev02_final.weights')
+network = cv2.dnn.readNetFromDarknet(path+'/rgbd_bgcut.cfg',
+                                     path+'/rgbd_bgcut_final.weights')
 
 network.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 network.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -132,7 +132,14 @@ layers_names_output = \
 
 # Setting minimum probability to eliminate weak predictions
 probability_minimum = 0.5
+depth_sensor = profile.get_device().first_depth_sensor()
+depth_scale = depth_sensor.get_depth_scale()
+print("Depth Scale is: " , depth_scale)
 
+# We will be removing the background of objects more than
+#  clipping_distance_in_meters meters away
+clipping_distance_in_meters = 0.38 #1 meter
+clipping_distance = clipping_distance_in_meters / depth_scale
 # Setting threshold for filtering weak bounding boxes
 # with non-maximum suppression
 threshold = 0.3
@@ -193,9 +200,9 @@ while True:
     depth_raw =  np.asanyarray(aligned_depth_frame.get_data())
     depth_fill_raw=np.asanyarray(depth_filter.get_data())
     color_image = np.asanyarray(color_frame.get_data())
-    depth_image_raw_8 = (depth_raw).astype('uint8')
+    raw_depth_bg_remove = np.where((depth_raw > clipping_distance) | (depth_raw <= 0), 0,depth_raw)
 
-    test = np.dstack((color_image,depth_image_raw_8))
+    test = np.dstack((color_image,raw_depth_bg_remove.astype('uint8')))
     # Getting spatial dimensions of the frame
     # we do it only once from the very beginning
     # all other frames have the same dimension
