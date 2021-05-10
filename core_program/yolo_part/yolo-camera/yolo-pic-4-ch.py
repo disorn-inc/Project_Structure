@@ -335,7 +335,7 @@ if len(results) > 0:
         # ymin = int(self.imgSize[0] * ymin)
         # ymax = int(self.imgSize[0] * ymax)
         detect.append([labels[int(class_numbers[i])], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
-        detect_yolo.append([labels[int(class_numbers[i])], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
+        #detect_yolo.append([labels[int(class_numbers[i])], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
         
 
 # Comparing how many objects where before non-maximum suppression
