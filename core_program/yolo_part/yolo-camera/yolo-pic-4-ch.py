@@ -348,8 +348,10 @@ print(detect)
 End of:
 Drawing bounding boxes and labels
 """
-
-
+"""Write detect.txt"""
+with open('test_file.txt', 'w') as f:
+    for row in detect:
+        f.writelines(' '.join(map(str, row)) + '\n')
 # Showing Original Image with Detected Objects
 # Giving name to the window with Original Image
 # And specifying that window is resizable
