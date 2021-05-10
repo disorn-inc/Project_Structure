@@ -1,15 +1,18 @@
 import glob
 import xml.etree.ElementTree as ET
 
+'''path to xml groundtruths file, this generate from yolo to voc[xml fomat] '''
 path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test/'
 
+
+"""function to write .txt file"""
 def write_txt(gt,file_name_text):
     path_gt = 'groundtruths/'
     with open(path_gt + file_name_text, 'w') as f:
         for row in gt:
             f.writelines(' '.join(map(str, row)) + '\n')
-        print(1)
 
+"""function to ETL process xml file to list[] of groundtruths[label, xmin, ymin, xmax, ymax]"""
 def extract_from_xml(file_to_process):
     gt = []
     tree = ET.parse(file_to_process)
@@ -27,12 +30,11 @@ def extract_from_xml(file_to_process):
             gt.append([label, xmin, ymin, xmax, ymax])
         
         #print(gt)
-    print('outloop',gt)
-    print(file_name_text)
+    #print('outloop',gt)
+    #print(file_name_text)
     write_txt(gt,file_name_text)
+     
     
-    #label = 
-    
-
+"""for loop for load all xml file"""
 for xmlfile in glob.glob(path_xml + "*.xml"):
     extract_from_xml(xmlfile)
