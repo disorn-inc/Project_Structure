@@ -89,8 +89,8 @@ Loading YOLO v3 network
 # r'yolo-coco-data\coco.names'
 # or:
 # 'yolo-coco-data\\coco.names'
-path = "/home/kittipong/pj_test"
-with open(path+'/classes.names') as f:
+path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
+with open(path+'test1/rgb01.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
@@ -108,8 +108,8 @@ with open(path+'/classes.names') as f:
 # or:
 # 'yolo-coco-data\\yolov3.cfg'
 # 'yolo-coco-data\\yolov3.weights'
-network = cv2.dnn.readNetFromDarknet(path+'/rgbd_bgcut.cfg',
-                                     path+'/rgbd_bgcut_final.weights')
+network = cv2.dnn.readNetFromDarknet(path+'test1/rgbd_bgcut.cfg',
+                                     path+'test1/rgbd_bgcut_final.weights')
 
 network.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 network.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -133,13 +133,6 @@ layers_names_output = \
 # Setting minimum probability to eliminate weak predictions
 probability_minimum = 0.5
 depth_sensor = profile.get_device().first_depth_sensor()
-depth_scale = depth_sensor.get_depth_scale()
-print("Depth Scale is: " , depth_scale)
-
-# We will be removing the background of objects more than
-#  clipping_distance_in_meters meters away
-clipping_distance_in_meters = 0.38 #1 meter
-clipping_distance = clipping_distance_in_meters / depth_scale
 # Setting threshold for filtering weak bounding boxes
 # with non-maximum suppression
 threshold = 0.3
@@ -378,7 +371,7 @@ while True:
     # And specifying that window is resizable
     cv2.namedWindow('YOLO v3 Real Time Detections', cv2.WINDOW_NORMAL)
     # Pay attention! 'cv2.imshow' takes images in BGR format
-    cv2.imshow('YOLO v3 Real Time Detections', color_image)
+    cv2.imshow('YOLO v3 Real Time Detections',color_image)
 
     # Breaking the loop if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
