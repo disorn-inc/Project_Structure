@@ -2,9 +2,11 @@ import numpy as np
 import cv2
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import sys,os
 
+home = os.path.expanduser("~")
 colorlabel=['gray','yellow']
-new_model = tf.keras.models.load_model('/home/kittipong/gg.h5')
+new_model = tf.keras.models.load_model(home + '/gg.h5')
 h, w = None, None
 
 path = "/home/kittipong/pj_test"
