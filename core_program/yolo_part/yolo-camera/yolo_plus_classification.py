@@ -10,7 +10,7 @@ new_model = tf.keras.models.load_model(home + '/gg.h5')
 h, w = None, None
 
 path = "/home/kittipong/pj_test"
-with open(path+'/classes1.names') as f:
+with open(path+'/depth_hl.names') as f:
     # Getting labels reading every line
     # and putting them into the list
     labels = [line.strip() for line in f]
