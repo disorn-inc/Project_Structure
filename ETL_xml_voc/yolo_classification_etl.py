@@ -29,10 +29,10 @@ def extract_from_xml(file_to_process):
     root = tree.getroot()
     file_name = root.find('filename').text
     num = file_name[-5]
-    file_name_rgb = ''
-    file_rgb = path_xml_rgb + file_name_rgb + png
+    file_name_rgb = 'color_image' + num + 'png'
     file_name_text = file_name.replace("png","txt")
     file_rgb_text = file_rgb.replace("png","txt")
+    color_image = cv2.imread(path_xml_rgb + file_name_rgb)
     image_BGR = cv2.imread(path_xml_depth + file_name , cv2.IMREAD_UNCHANGED) 
     h, w = image_BGR.shape[:2]
     blob = cv2.dnn.blobFromImage(image_BGR, 1/255.0 , (608,608),
