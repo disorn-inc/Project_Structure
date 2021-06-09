@@ -2,12 +2,12 @@ import glob
 import xml.etree.ElementTree as ET
 
 '''path to xml groundtruths file, this generate from yolo to voc[xml fomat] '''
-path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test/'
+path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_depth/'
 
 
 """function to write .txt file"""
 def write_txt(gt,file_name_text):
-    path_gt = 'groundtruths/'
+    path_gt = '/home/disorn/metrics_measurement/test_combine/groundtruths/'
     with open(path_gt + file_name_text, 'w') as f:
         for row in gt:
             f.writelines(' '.join(map(str, row)) + '\n')
