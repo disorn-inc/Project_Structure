@@ -9,7 +9,7 @@ import time
 path_xml_depth = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_depth/'
 path_xml_rgb = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_rgb/'
 path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
-new_model = tf.keras.models.load_model(path + '/gg.h5')
+new_model = tf.keras.models.load_model(path + 'test1/gg.h5')
 """function to write .txt file"""
 def write_txt(gt,file_name_text):
     path_gt = '/home/disorn/metrics_measurement/test_rgb/detections/'
@@ -37,7 +37,7 @@ def extract_from_xml(file_to_process):
     h, w = image_BGR.shape[:2]
     blob = cv2.dnn.blobFromImage(image_BGR, 1/255.0 , (608,608),
                              swapRB=False, crop=False)
-    with open(path+'test1/depth_assem2color.names') as f:
+    with open(path+'test1/depth_hl.names') as f:
         labels = [line.strip() for line in f]
         
     network = cv2.dnn.readNetFromDarknet(path+'test1/rgb_combine_2color.cfg',
@@ -65,6 +65,24 @@ def extract_from_xml(file_to_process):
                 x_center, y_center, box_width, box_height = box_current
                 x_min = int(x_center - (box_width / 2))
                 y_min = int(y_center - (box_height / 2))
+                if(x_min<0):
+                    x_min1=0
+                    box_width1=box_width+x_min
+                else:
+                    x_min1=x_min
+                    box_width1=box_width
+                if(y_min<0):
+                    y_min1=0
+                    box_height1=box_height+y_min
+                else:
+                    y_min1=y_min
+                    box_height1=box_height
+                color_segment = color_image[int(y_min1):int(y_min1+box_height1),int(x_min1):int(x_min1+box_width1)]
+                color_segment = cv2.resize(color_segment,(180,180))
+                color_segment = cv2.cvtColor(color_segment, cv2.COLOR_BGR2RGB)
+                color_segment = np.expand_dims(color_segment, axis=0)
+                predictions=new_model.predict(color_segment)
+                color_class=np.argmax(predictions)
                 bounding_boxes.append([x_min, y_min, int(box_width), int(box_height)])
                 confidences.append(float(confidence_current))
                 class_numbers.append(class_current)
