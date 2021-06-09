@@ -6,18 +6,18 @@ import time
 
 
 '''path to xml groundtruths file, this generate from yolo to voc[xml fomat] '''
-path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test/'
+path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_rgb/'
 path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
 
 """function to write .txt file"""
 def write_txt(gt,file_name_text):
-    path_gt = 'detections/'
+    path_gt = '/home/disorn/metrics_measurement/test_rgb/detections/'
     with open(path_gt + file_name_text, 'w') as f:
         for row in gt:
             f.writelines(' '.join(map(str, row)) + '\n')
             
 def write_img(img,filename):
-    path_save_result = 'result_image/'
+    path_save_result = '/home/disorn/metrics_measurement/test_rgb/result_image/'
     print(path_save_result + 'result'+filename)
     cv2.imwrite(path_save_result + 'result'+filename, img)
 
@@ -32,11 +32,11 @@ def extract_from_xml(file_to_process):
     h, w = image_BGR.shape[:2]
     blob = cv2.dnn.blobFromImage(image_BGR, 1/255.0 , (608,608),
                              swapRB=False, crop=False)
-    with open(path+'test1/rgb01.names') as f:
+    with open(path+'test1/depth_assem2color.names') as f:
         labels = [line.strip() for line in f]
         
-    network = cv2.dnn.readNetFromDarknet(path+'test1/rgbd_bgcut.cfg',
-                                        path+'test1/rgbd_bgcut_final.weights')
+    network = cv2.dnn.readNetFromDarknet(path+'test1/rgb_combine_2color.cfg',
+                                        path+'test1/rgb_combine_2color_final.weights')
     layers_names_all = network.getLayerNames()
     layers_names_output = \
         [layers_names_all[i[0] - 1] for i in network.getUnconnectedOutLayers()]
@@ -78,11 +78,11 @@ def extract_from_xml(file_to_process):
             cv2.rectangle(image_BGR, (x_min, y_min),
                           (x_min + box_width, y_min + box_height),
                           colour_box_current, 2)
-            text_box_current = '{}: {:.4f}'.format(labels[int(class_numbers[i])],
+            text_box_current = '{}: {:.4f}'.format(labels[int(class_numbers[i][0])]+colorlabel[int(class_numbers[i][1])]+'dome',
                                                    confidences[i])
             cv2.putText(image_BGR, text_box_current, (x_min, y_min - 5),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, colour_box_current, 2)
-            detect.append([labels[int(class_numbers[i])], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
+            detect.append([labels[int(class_numbers[i][0])]+colorlabel[int(class_numbers[i][1])]+'dome')], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
     write_txt(detect,file_name_text)
     write_img(image_BGR[:,:,0:3], file_name)
     

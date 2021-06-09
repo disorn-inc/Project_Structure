@@ -1,5 +1,6 @@
 import glob
 import xml.etree.ElementTree as ET
+import tensorflow as tf
 import numpy as np
 import cv2
 import time
@@ -9,29 +10,47 @@ import time
 path_xml_depth = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_depth/'
 path_xml_rgb = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_rgb/'
 path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
-new_model = tf.keras.models.load_model(path + 'test1/gg.h5')
+# colorlabel=['gray','yellow']
+# new_model = tf.keras.models.load_model(path + 'test1/gg.h5')
 """function to write .txt file"""
 def write_txt(gt,file_name_text):
-    path_gt = '/home/disorn/metrics_measurement/test_rgb/detections/'
+    path_gt = '/home/disorn/metrics_measurement/test_combine/detections/'
     with open(path_gt + file_name_text, 'w') as f:
         for row in gt:
             f.writelines(' '.join(map(str, row)) + '\n')
             
 def write_img(img,filename):
-    path_save_result = '/home/disorn/metrics_measurement/test_rgb/result_image/'
+    path_save_result = '/home/disorn/metrics_measurement/test_combine/result_image/'
     print(path_save_result + 'result'+filename)
     cv2.imwrite(path_save_result + 'result'+filename, img)
 
 """function to ETL process xml file to list[] of groundtruths[label, xmin, ymin, xmax, ymax]"""
 def extract_from_xml(file_to_process):
+    colorlabel=['gray','yellow']
+    new_model = tf.keras.models.load_model(path + 'test1/gg.h5')
     gt = []
     tree = ET.parse(file_to_process)
     root = tree.getroot()
     file_name = root.find('filename').text
-    num = file_name[-5]
-    file_name_rgb = 'color_image' + num + 'png'
+    try:
+        int(file_name[-7:-4])
+        num = file_name[-7:-4]
+    except ValueError as ve:
+        try:
+            int(file_name[-6:-4])
+            num = file_name[-6:-4]
+        except ValueError as ve:
+            num = file_name[-5]
+    # if int(file_name[-7:-5]) is int:
+    #     num = file_name[-7:-5]
+    # elif int(file_name[-6:-5]) is int:
+    #     num = file_name[-6:-5]
+    # else:
+    #     num = file_name[-5]
+    file_name_rgb = 'color_image' + num + '.png'
+    print(file_name_rgb[-7:-4],num)
     file_name_text = file_name.replace("png","txt")
-    file_rgb_text = file_rgb.replace("png","txt")
+    file_rgb_text = file_name_rgb.replace("png","txt")
     color_image = cv2.imread(path_xml_rgb + file_name_rgb)
     image_BGR = cv2.imread(path_xml_depth + file_name , cv2.IMREAD_UNCHANGED) 
     h, w = image_BGR.shape[:2]
@@ -40,8 +59,8 @@ def extract_from_xml(file_to_process):
     with open(path+'test1/depth_hl.names') as f:
         labels = [line.strip() for line in f]
         
-    network = cv2.dnn.readNetFromDarknet(path+'test1/rgb_combine_2color.cfg',
-                                        path+'test1/rgb_combine_2color_final.weights')
+    network = cv2.dnn.readNetFromDarknet(path+'test1/Depthmap_combine_hl.cfg',
+                                        path+'test1/Depthmap_combine_hl_final.weights')
     layers_names_all = network.getLayerNames()
     layers_names_output = \
         [layers_names_all[i[0] - 1] for i in network.getUnconnectedOutLayers()]
@@ -60,6 +79,8 @@ def extract_from_xml(file_to_process):
             scores = detected_objects[5:]
             class_current = np.argmax(scores)
             confidence_current = scores[class_current]
+            
+            
             if confidence_current > probability_minimum:
                 box_current = detected_objects[0:4] * np.array([w, h, w, h])
                 x_center, y_center, box_width, box_height = box_current
@@ -77,15 +98,20 @@ def extract_from_xml(file_to_process):
                 else:
                     y_min1=y_min
                     box_height1=box_height
+                    
+                # cv2.imshow('j',color_image)
+                # cv2.waitKey(0)
                 color_segment = color_image[int(y_min1):int(y_min1+box_height1),int(x_min1):int(x_min1+box_width1)]
                 color_segment = cv2.resize(color_segment,(180,180))
                 color_segment = cv2.cvtColor(color_segment, cv2.COLOR_BGR2RGB)
                 color_segment = np.expand_dims(color_segment, axis=0)
                 predictions=new_model.predict(color_segment)
                 color_class=np.argmax(predictions)
+                
+                
                 bounding_boxes.append([x_min, y_min, int(box_width), int(box_height)])
                 confidences.append(float(confidence_current))
-                class_numbers.append(class_current)
+                class_numbers.append([class_current,color_class])
     results = cv2.dnn.NMSBoxes(bounding_boxes, confidences,
                                probability_minimum, threshold)
     counter = 1
@@ -93,21 +119,22 @@ def extract_from_xml(file_to_process):
     detect_yolo = []
     if len(results) > 0:
         for i in results.flatten():
-            print('Object {0}: {1}'.format(counter, labels[int(class_numbers[i])]))
+            print('Object {0}: {1}'.format(counter, colorlabel[int(class_numbers[i][1])] + labels[int(class_numbers[i][0])]+'dome'))
             counter += 1
             x_min, y_min = bounding_boxes[i][0], bounding_boxes[i][1]
             box_width, box_height = bounding_boxes[i][2], bounding_boxes[i][3]
-            colour_box_current = colours[class_numbers[i]].tolist()
-            cv2.rectangle(image_BGR, (x_min, y_min),
+            colour_box_current = colours[class_numbers[i][0]].tolist()
+            cv2.rectangle(color_image, (x_min, y_min),
                           (x_min + box_width, y_min + box_height),
                           colour_box_current, 2)
-            text_box_current = '{}: {:.4f}'.format(labels[int(class_numbers[i])],
+            
+            text_box_current = '{}: {:.4f}'.format(colorlabel[int(class_numbers[i][1])] + labels[int(class_numbers[i][0])]+'dome',
                                                    confidences[i])
-            cv2.putText(image_BGR, text_box_current, (x_min, y_min - 5),
+            cv2.putText(color_image, text_box_current, (x_min, y_min - 5),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, colour_box_current, 2)
-            detect.append([labels[int(class_numbers[i])], confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
+            detect.append([colorlabel[int(class_numbers[i][1])] + labels[int(class_numbers[i][0])]+'dome', confidences[i], x_min, y_min, x_min + box_width, y_min +box_height])
     write_txt(detect,file_name_text)
-    write_img(image_BGR[:,:,0:3], file_name)
+    write_img(color_image, file_name)
     
 
         #print(gt)

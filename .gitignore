@@ -1,3 +1,4 @@
 *.weights
 *.zip
 *.vscode
+*.h5
