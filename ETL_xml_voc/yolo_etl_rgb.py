@@ -6,18 +6,18 @@ import time
 
 
 '''path to xml groundtruths file, this generate from yolo to voc[xml fomat] '''
-path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/test_rgb/'
+path_xml = '/home/disorn/code_save/Yolo2Pascal-annotation-conversion/real_final_depth/'
 path = "/home/disorn/code_save/Project_Structure/core_program/yolo_part/yolo-camera/"
 
 """function to write .txt file"""
 def write_txt(gt,file_name_text):
-    path_gt = '/home/disorn/metrics_measurement/test_rgb/detections/'
+    path_gt = '/home/disorn/metrics_measurement/real_final_depth/detections/'
     with open(path_gt + file_name_text, 'w') as f:
         for row in gt:
             f.writelines(' '.join(map(str, row)) + '\n')
             
 def write_img(img,filename):
-    path_save_result = '/home/disorn/metrics_measurement/test_rgb/result_image/'
+    path_save_result = '/home/disorn/metrics_measurement/real_final_depth/result_image/'
     print(path_save_result + 'result'+filename)
     cv2.imwrite(path_save_result + 'result'+filename, img)
 
@@ -32,11 +32,11 @@ def extract_from_xml(file_to_process):
     h, w = image_BGR.shape[:2]
     blob = cv2.dnn.blobFromImage(image_BGR, 1/255.0 , (608,608),
                              swapRB=True, crop=False)
-    with open(path+'test1/depth_assem2color.names') as f:
+    with open(path+'test1/classes_final.names') as f:
         labels = [line.strip() for line in f]
         
-    network = cv2.dnn.readNetFromDarknet(path+'test1/rgb_combine_2color.cfg',
-                                        path+'test1/rgb_combine_2color_final.weights')
+    network = cv2.dnn.readNetFromDarknet(path+'test1/depthmap_realfinal.cfg',
+                                        path+'test1/depthmap_realfinal_final.weights')
     layers_names_all = network.getLayerNames()
     layers_names_output = \
         [layers_names_all[i[0] - 1] for i in network.getUnconnectedOutLayers()]
